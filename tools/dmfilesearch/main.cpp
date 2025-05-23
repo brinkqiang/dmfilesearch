@@ -4,9 +4,21 @@
 #include <sstream>
 #include <memory>
 #include "dmfilesearch.h"
-
+#include "dmfix_win_utf8.h"
 // 全局搜索引擎实例
-std::unique_ptr<Idmfilesearch> g_searchEngine;
+template<typename T>
+struct DMModuleDeleter
+{
+    inline void operator()(T* f) const
+    {
+        if (f)
+        {
+            f->Release();
+        }
+    }
+};
+
+std::unique_ptr<Idmfilesearch, DMModuleDeleter<Idmfilesearch>> g_searchEngine;
 
 // 命令行参数结构
 struct CmdArgs {
@@ -337,11 +349,6 @@ int main(int argc, char* argv[]) {
     } catch (const std::exception& e) {
         std::cerr << "执行错误: " << e.what() << std::endl;
         return 1;
-    }
-    
-    // 清理资源
-    if (g_searchEngine) {
-        g_searchEngine->Release();
     }
     
     return 0;
