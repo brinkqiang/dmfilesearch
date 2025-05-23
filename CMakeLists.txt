@@ -27,7 +27,7 @@ ModuleImportAll("thirdparty")
 LibImport("libdmfilesearch" "src/libdmfilesearch")
 
 if(PROJECT_IS_TOP_LEVEL)
-    ExeImport("test" "libdmfilesearch;dmtest")
+    ExeImport("tools" "libdmfilesearch")
 endif()
 
 AddInstall("libdmfilesearch")
