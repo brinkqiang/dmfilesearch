@@ -22,7 +22,9 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 set(CMAKE_STATIC_LIBRARY_PREFIX "")
 set(CMAKE_SHARED_LIBRARY_PREFIX "")
 
-add_definitions(-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR=1)
+if(MSVC)
+    add_compile_definitions("_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR=1")
+endif()
 
 ModuleImportAll("thirdparty")
 
