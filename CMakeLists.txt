@@ -34,4 +34,4 @@ if(PROJECT_IS_TOP_LEVEL)
     ExeImport("tools" "libdmfilesearch")
 endif()
 
-#AddInstall("libdmfilesearch" "${CMAKE_CURRENT_SOURCE_DIR}/include")
+AddInstall("es" "")
