@@ -69,7 +69,7 @@ private:
     std::unordered_set<std::string> m_excludeExtensions;
     std::unordered_set<std::string> m_excludeDirectories;
     DMSearchOptions m_searchOptions;
-    mutable std::mutex m_indexMutex;
+    std::mutex m_indexMutex;
     std::atomic<bool> m_indexing{false};
     
     // 内部辅助函数
