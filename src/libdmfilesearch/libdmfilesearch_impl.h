@@ -27,37 +27,39 @@
 #include <mutex>
 #include <thread>
 #include <atomic>
+#include <iostream>
 
 class DmfilesearchImpl : public Idmfilesearch
 {
 public:
-    virtual ~DmfilesearchImpl() {}
-    virtual void DMAPI Release(void) override;
-    virtual void DMAPI Test(void) override;
+    DmfilesearchImpl();
+    virtual ~DmfilesearchImpl();
+    void DMAPI Release(void) override;
+    void DMAPI Test(void) override;
     
-    virtual bool DMAPI Initialize() override;
-    virtual void DMAPI BuildIndex(const std::string& rootPath) override;
-    virtual void DMAPI BuildIndexMultiple(const DMStringList& rootPaths) override;
+    bool DMAPI Init() override;
+    void DMAPI BuildIndex(const std::string& rootPath) override;
+    void DMAPI BuildIndexMultiple(const DMStringList& rootPaths) override;
     
-    virtual DMFileList* DMAPI Search(const std::string& pattern) override;
-    virtual DMFileList* DMAPI SearchWithOptions(const std::string& pattern, const DMSearchOptions& options) override;
-    virtual DMFileList* DMAPI QuickSearch(const std::string& rootPath, const std::string& pattern) override;
+    DMFileList* DMAPI Search(const std::string& pattern) override;
+    DMFileList* DMAPI SearchWithOptions(const std::string& pattern, const DMSearchOptions& options) override;
+    DMFileList* DMAPI QuickSearch(const std::string& rootPath, const std::string& pattern) override;
     
-    virtual void DMAPI ClearIndex() override;
-    virtual uint32_t DMAPI GetIndexedFileCount() override;
-    virtual bool DMAPI SaveIndex(const std::string& indexFile) override;
-    virtual bool DMAPI LoadIndex(const std::string& indexFile) override;
+    void DMAPI ClearIndex() override;
+    uint32_t DMAPI GetIndexedFileCount() override;
+    bool DMAPI SaveIndex(const std::string& indexFile) override;
+    bool DMAPI LoadIndex(const std::string& indexFile) override;
     
-    virtual void DMAPI AddIncludeExtension(const std::string& extension) override;
-    virtual void DMAPI AddExcludeExtension(const std::string& extension) override;
-    virtual void DMAPI AddExcludeDirectory(const std::string& directory) override;
-    virtual void DMAPI ClearFilters() override;
+    void DMAPI AddIncludeExtension(const std::string& extension) override;
+    void DMAPI AddExcludeExtension(const std::string& extension) override;
+    void DMAPI AddExcludeDirectory(const std::string& directory) override;
+    void DMAPI ClearFilters() override;
     
-    virtual void DMAPI SetSearchOptions(const DMSearchOptions& options) override;
-    virtual DMSearchOptions DMAPI GetSearchOptions() override;
+    void DMAPI SetSearchOptions(const DMSearchOptions& options) override;
+    DMSearchOptions DMAPI GetSearchOptions() override;
     
-    virtual void DMAPI PrintResults(const DMFileList& results) override;
-    virtual void DMAPI SortResults(DMFileList& results, const std::string& sortBy) override;
+    void DMAPI PrintResults(const DMFileList& results) override;
+    void DMAPI SortResults(DMFileList& results, const std::string& sortBy) override;
 
 private:
     // 内部数据结构

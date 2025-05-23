@@ -4,5 +4,6 @@ PROJECT(dmtest)
 INCLUDE(cmake/ModuleImport.cmake)
 INCLUDE(cmake/ModuleCompileOptions.cmake)
 ModuleSetCompileOptions()
+ModuleSetWinCompilerFlags()
 
 LibImport("dmtest" "src/dmtest")

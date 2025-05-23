@@ -21,6 +21,7 @@
 
 #ifndef __DMFILESEARCH_H_INCLUDE__
 #define __DMFILESEARCH_H_INCLUDE__
+
 #include "dmos.h"
 #include <string>
 #include <vector>
@@ -60,12 +61,12 @@ struct DMSearchOptions {
 class Idmfilesearch
 {
 public:
-    virtual ~Idmfilesearch() {}
+    virtual ~Idmfilesearch() {};
     virtual void DMAPI Release(void) = 0;
     virtual void DMAPI Test(void) = 0;
     
     // 初始化搜索引擎
-    virtual bool DMAPI Initialize() = 0;
+    virtual bool DMAPI Init() = 0;
     
     // 建立文件索引
     virtual void DMAPI BuildIndex(const std::string& rootPath) = 0;

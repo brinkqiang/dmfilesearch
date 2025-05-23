@@ -31,15 +31,27 @@
 
 namespace fs = std::filesystem;
 
-void DmfilesearchImpl::Release(void) {
+
+DmfilesearchImpl::DmfilesearchImpl()
+{
+    std::cout << __FUNCTION__ << std::endl;
+}
+
+
+DmfilesearchImpl::~DmfilesearchImpl()
+{
+
+}
+
+void DMAPI DmfilesearchImpl::Release(void) {
     delete this;
 }
 
-void DmfilesearchImpl::Test(void) {
+void DMAPI DmfilesearchImpl::Test(void) {
     std::cout << "DmfilesearchImpl::Test() - Everything风格文件搜索引擎" << std::endl;
 }
 
-bool DmfilesearchImpl::Initialize() {
+bool DMAPI DmfilesearchImpl::Init() {
     std::unique_lock<std::mutex> lock(m_indexMutex);
     m_fileIndex.clear();
     m_nameIndex.clear();
@@ -50,7 +62,7 @@ bool DmfilesearchImpl::Initialize() {
     return true;
 }
 
-void DmfilesearchImpl::BuildIndex(const std::string& rootPath) {
+void DMAPI DmfilesearchImpl::BuildIndex(const std::string& rootPath) {
     if (m_indexing.load()) {
         std::cout << "索引构建中，请稍候..." << std::endl;
         return;
@@ -81,7 +93,7 @@ void DmfilesearchImpl::BuildIndex(const std::string& rootPath) {
     m_indexing = false;
 }
 
-void DmfilesearchImpl::BuildIndexMultiple(const DMStringList& rootPaths) {
+void DMAPI DmfilesearchImpl::BuildIndexMultiple(const DMStringList& rootPaths) {
     if (m_indexing.load()) {
         std::cout << "索引构建中，请稍候..." << std::endl;
         return;
@@ -162,7 +174,7 @@ void DmfilesearchImpl::BuildIndexRecursive(const std::string& directory) {
     }
 }
 
-void DmfilesearchImpl::BuildNameIndex() {
+void DMAPI DmfilesearchImpl::BuildNameIndex() {
     m_nameIndex.clear();
     for (size_t i = 0; i < m_fileIndex.size(); ++i) {
         const auto& fileInfo = m_fileIndex[i];
@@ -171,11 +183,11 @@ void DmfilesearchImpl::BuildNameIndex() {
     }
 }
 
-DMFileList* DmfilesearchImpl::Search(const std::string& pattern) {
+DMFileList* DMAPI DmfilesearchImpl::Search(const std::string& pattern) {
     return SearchWithOptions(pattern, m_searchOptions);
 }
 
-DMFileList* DmfilesearchImpl::SearchWithOptions(const std::string& pattern, const DMSearchOptions& options) {
+DMFileList* DMAPI DmfilesearchImpl::SearchWithOptions(const std::string& pattern, const DMSearchOptions& options) {
     //std::unique_lock<std::mutex> lock(m_indexMutex);
     
     if (m_fileIndex.empty()) {
@@ -207,7 +219,7 @@ DMFileList* DmfilesearchImpl::SearchWithOptions(const std::string& pattern, cons
     return results;
 }
 
-DMFileList* DmfilesearchImpl::QuickSearch(const std::string& rootPath, const std::string& pattern) {
+DMFileList* DMAPI DmfilesearchImpl::QuickSearch(const std::string& rootPath, const std::string& pattern) {
     std::cout << "快速搜索模式: " << rootPath << " -> \"" << pattern << "\"" << std::endl;
     
     DMFileList* results = new DMFileList();
@@ -302,7 +314,7 @@ void DmfilesearchImpl::SearchWithRegex(const std::string& pattern, const DMSearc
     }
 }
 
-bool DmfilesearchImpl::MatchPattern(const std::string& text, const std::string& pattern, const DMSearchOptions& options) const {
+bool DMAPI DmfilesearchImpl::MatchPattern(const std::string& text, const std::string& pattern, const DMSearchOptions& options) const {
     std::string searchText = options.caseSensitive ? text : ToLower(text);
     std::string searchPattern = options.caseSensitive ? pattern : ToLower(pattern);
     
@@ -332,19 +344,19 @@ bool DmfilesearchImpl::MatchPattern(const std::string& text, const std::string& 
     return searchText.find(searchPattern) != std::string::npos;
 }
 
-void DmfilesearchImpl::ClearIndex() {
+void DMAPI DmfilesearchImpl::ClearIndex() {
     //std::unique_lock<std::mutex> lock(m_indexMutex);
     m_fileIndex.clear();
     m_nameIndex.clear();
     std::cout << "索引已清空" << std::endl;
 }
 
-uint32_t DmfilesearchImpl::GetIndexedFileCount() {
+uint32_t DMAPI DmfilesearchImpl::GetIndexedFileCount() {
     //std::unique_lock<std::mutex> lock(m_indexMutex);
     return static_cast<uint32_t>(m_fileIndex.size());
 }
 
-bool DmfilesearchImpl::SaveIndex(const std::string& indexFile) {
+bool DMAPI DmfilesearchImpl::SaveIndex(const std::string& indexFile) {
     //std::unique_lock<std::mutex> lock(m_indexMutex);
     
     try {
@@ -383,7 +395,7 @@ bool DmfilesearchImpl::SaveIndex(const std::string& indexFile) {
     }
 }
 
-bool DmfilesearchImpl::LoadIndex(const std::string& indexFile) {
+bool DMAPI DmfilesearchImpl::LoadIndex(const std::string& indexFile) {
     //std::unique_lock<std::mutex> lock(m_indexMutex);
     
     try {
@@ -433,33 +445,33 @@ bool DmfilesearchImpl::LoadIndex(const std::string& indexFile) {
     }
 }
 
-void DmfilesearchImpl::AddIncludeExtension(const std::string& extension) {
+void DMAPI DmfilesearchImpl::AddIncludeExtension(const std::string& extension) {
     m_includeExtensions.insert(ToLower(extension));
 }
 
-void DmfilesearchImpl::AddExcludeExtension(const std::string& extension) {
+void DMAPI DmfilesearchImpl::AddExcludeExtension(const std::string& extension) {
     m_excludeExtensions.insert(ToLower(extension));
 }
 
-void DmfilesearchImpl::AddExcludeDirectory(const std::string& directory) {
+void DMAPI DmfilesearchImpl::AddExcludeDirectory(const std::string& directory) {
     m_excludeDirectories.insert(directory);
 }
 
-void DmfilesearchImpl::ClearFilters() {
+void DMAPI DmfilesearchImpl::ClearFilters() {
     m_includeExtensions.clear();
     m_excludeExtensions.clear();
     m_excludeDirectories.clear();
 }
 
-void DmfilesearchImpl::SetSearchOptions(const DMSearchOptions& options) {
+void DMAPI DmfilesearchImpl::SetSearchOptions(const DMSearchOptions& options) {
     m_searchOptions = options;
 }
 
-DMSearchOptions DmfilesearchImpl::GetSearchOptions() {
+DMSearchOptions DMAPI DmfilesearchImpl::GetSearchOptions() {
     return m_searchOptions;
 }
 
-void DmfilesearchImpl::PrintResults(const DMFileList& results) {
+void DMAPI DmfilesearchImpl::PrintResults(const DMFileList& results) {
     if (results.empty()) {
         std::cout << "未找到匹配的文件" << std::endl;
         return;
@@ -478,7 +490,7 @@ void DmfilesearchImpl::PrintResults(const DMFileList& results) {
     }
 }
 
-void DmfilesearchImpl::SortResults(DMFileList& results, const std::string& sortBy) {
+void DMAPI DmfilesearchImpl::SortResults(DMFileList& results, const std::string& sortBy) {
     if (sortBy == "name") {
         std::sort(results.begin(), results.end(), 
             [](const DMFileInfo& a, const DMFileInfo& b) {

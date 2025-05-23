@@ -5,20 +5,8 @@
 #include <memory>
 #include "dmfilesearch.h"
 #include "dmfix_win_utf8.h"
-// 全局搜索引擎实例
-template<typename T>
-struct DMModuleDeleter
-{
-    inline void operator()(T* f) const
-    {
-        if (f)
-        {
-            f->Release();
-        }
-    }
-};
 
-std::unique_ptr<Idmfilesearch, DMModuleDeleter<Idmfilesearch>> g_searchEngine;
+Idmfilesearch* g_searchEngine = nullptr;
 
 // 命令行参数结构
 struct CmdArgs {
@@ -246,8 +234,8 @@ bool ParseArguments(int argc, char* argv[], CmdArgs& args) {
 
 void InitializeSearchEngine() {
     if (!g_searchEngine) {
-        g_searchEngine.reset(dmfilesearchGetModule());
-        if (!g_searchEngine->Initialize()) {
+        g_searchEngine = dmfilesearchGetModule();
+        if (!g_searchEngine->Init()) {
             std::cerr << "搜索引擎初始化失败" << std::endl;
             exit(1);
         }
@@ -350,6 +338,11 @@ int main(int argc, char* argv[]) {
         std::cerr << "执行错误: " << e.what() << std::endl;
         return 1;
     }
-    
+ 
+    if (g_searchEngine)
+    {
+        g_searchEngine->Release();
+    }
+
     return 0;
 }
