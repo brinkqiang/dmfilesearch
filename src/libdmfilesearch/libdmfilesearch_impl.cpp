@@ -40,7 +40,7 @@ void DmfilesearchImpl::Test(void) {
 }
 
 bool DmfilesearchImpl::Initialize() {
-    std::lock_guard<std::mutex> lock(m_indexMutex);
+    std::unique_lock<std::mutex> lock(m_indexMutex);
     m_fileIndex.clear();
     m_nameIndex.clear();
     m_includeExtensions.clear();
@@ -57,7 +57,7 @@ void DmfilesearchImpl::BuildIndex(const std::string& rootPath) {
     }
     
     m_indexing = true;
-    std::lock_guard<std::mutex> lock(m_indexMutex);
+    //std::unique_lock<std::mutex> lock(m_indexMutex);
     
     std::cout << "开始构建索引: " << rootPath << std::endl;
     auto startTime = std::chrono::high_resolution_clock::now();
@@ -88,7 +88,7 @@ void DmfilesearchImpl::BuildIndexMultiple(const DMStringList& rootPaths) {
     }
     
     m_indexing = true;
-    std::lock_guard<std::mutex> lock(m_indexMutex);
+    //std::unique_lock<std::mutex> lock(m_indexMutex);
     
     std::cout << "开始构建多路径索引..." << std::endl;
     auto startTime = std::chrono::high_resolution_clock::now();
@@ -176,7 +176,7 @@ DMFileList* DmfilesearchImpl::Search(const std::string& pattern) {
 }
 
 DMFileList* DmfilesearchImpl::SearchWithOptions(const std::string& pattern, const DMSearchOptions& options) {
-    std::lock_guard<std::mutex> lock(m_indexMutex);
+    //std::unique_lock<std::mutex> lock(m_indexMutex);
     
     if (m_fileIndex.empty()) {
         std::cout << "索引为空，请先构建索引" << std::endl;
@@ -333,19 +333,19 @@ bool DmfilesearchImpl::MatchPattern(const std::string& text, const std::string& 
 }
 
 void DmfilesearchImpl::ClearIndex() {
-    std::lock_guard<std::mutex> lock(m_indexMutex);
+    //std::unique_lock<std::mutex> lock(m_indexMutex);
     m_fileIndex.clear();
     m_nameIndex.clear();
     std::cout << "索引已清空" << std::endl;
 }
 
 uint32_t DmfilesearchImpl::GetIndexedFileCount() {
-    std::lock_guard<std::mutex> lock(m_indexMutex);
+    //std::unique_lock<std::mutex> lock(m_indexMutex);
     return static_cast<uint32_t>(m_fileIndex.size());
 }
 
 bool DmfilesearchImpl::SaveIndex(const std::string& indexFile) {
-    std::lock_guard<std::mutex> lock(m_indexMutex);
+    //std::unique_lock<std::mutex> lock(m_indexMutex);
     
     try {
         std::ofstream ofs(indexFile, std::ios::binary);
@@ -384,7 +384,7 @@ bool DmfilesearchImpl::SaveIndex(const std::string& indexFile) {
 }
 
 bool DmfilesearchImpl::LoadIndex(const std::string& indexFile) {
-    std::lock_guard<std::mutex> lock(m_indexMutex);
+    //std::unique_lock<std::mutex> lock(m_indexMutex);
     
     try {
         std::ifstream ifs(indexFile, std::ios::binary);
