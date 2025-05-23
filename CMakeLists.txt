@@ -22,6 +22,7 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 set(CMAKE_STATIC_LIBRARY_PREFIX "")
 set(CMAKE_SHARED_LIBRARY_PREFIX "")
 
+
 ModuleImportAll("thirdparty")
 
 LibImport("libdmfilesearch" "src/libdmfilesearch")
@@ -30,4 +31,4 @@ if(PROJECT_IS_TOP_LEVEL)
     ExeImport("tools" "libdmfilesearch")
 endif()
 
-AddInstall("libdmfilesearch")
+#AddInstall("libdmfilesearch" "${CMAKE_CURRENT_SOURCE_DIR}/include")
