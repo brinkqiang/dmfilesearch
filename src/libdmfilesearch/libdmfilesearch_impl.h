@@ -1,4 +1,3 @@
-
 // Copyright (c) 2018 brinkqiang (brink.qiang@gmail.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,7 +23,6 @@
 #include "dmfilesearch.h"
 #include <unordered_map>
 #include <unordered_set>
-#include <mutex>
 #include <thread>
 #include <atomic>
 #include <iostream>
@@ -69,7 +67,6 @@ private:
     std::unordered_set<std::string> m_excludeExtensions;
     std::unordered_set<std::string> m_excludeDirectories;
     DMSearchOptions m_searchOptions;
-    std::mutex m_indexMutex;
     std::atomic<bool> m_indexing{false};
     
     // 内部辅助函数
