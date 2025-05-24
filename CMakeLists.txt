@@ -23,7 +23,7 @@ set(CMAKE_STATIC_LIBRARY_PREFIX "")
 set(CMAKE_SHARED_LIBRARY_PREFIX "")
 
 if(MSVC)
-    #add_compile_definitions("_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR=1")
+    add_compile_definitions("_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR=1")
 endif()
 
 ModuleImportAll("thirdparty")
