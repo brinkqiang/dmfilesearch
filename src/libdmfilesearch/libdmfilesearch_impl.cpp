@@ -144,10 +144,12 @@ void DmfilesearchImpl::BuildIndexRecursive(const std::string& directory) {
             
             if (entry.is_directory()) {
                 if (!ShouldIncludeDirectory(pathStr)) {
+                    // std::cout << "排除目录: " << pathStr << std::endl;
                     continue;
                 }
             } else {
                 if (!ShouldIncludeFile(pathStr, fileName)) {
+                    std::cerr << "排除文件 (过滤器): " << pathStr << std::endl;
                     continue;
                 }
             }
@@ -507,13 +509,19 @@ bool DmfilesearchImpl::ShouldIncludeFile(const std::string& filePath, const std:
     std::string ext = GetFileExtension(fileName);
     
     // 检查排除扩展名
-    if (!m_excludeExtensions.empty() && m_excludeExtensions.count(ext)) {
-        return false;
+    if (!m_excludeExtensions.empty()) {
+        if (m_excludeExtensions.count(ext)) {
+            // std::cout << "排除文件 (排除扩展名): " << filePath << " (扩展名: " << ext << ")" << std::endl;
+            return false;
+        }
     }
     
     // 检查包含扩展名
-    if (!m_includeExtensions.empty() && !m_includeExtensions.count(ext)) {
-        return false;
+    if (!m_includeExtensions.empty()) {
+        if (!m_includeExtensions.count(ext)) {
+            // std::cout << "排除文件 (不包含扩展名): " << filePath << " (扩展名: " << ext << ")" << std::endl;
+            return false;
+        }
     }
     
     return true;
@@ -531,7 +539,7 @@ bool DmfilesearchImpl::ShouldIncludeDirectory(const std::string& dirPath) const 
 std::string DmfilesearchImpl::GetFileExtension(const std::string& fileName) const {
     size_t pos = fileName.find_last_of('.');
     if (pos == std::string::npos) return "";
-    return ToLower(fileName.substr(pos));
+    return ToLower(fileName.substr(pos + 1)); // 移除点
 }
 
 std::string DmfilesearchImpl::ToLower(const std::string& str) const {

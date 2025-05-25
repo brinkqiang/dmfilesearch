@@ -4,7 +4,7 @@
 #include <sstream>
 #include <memory>
 #include "dmfilesearch.h"
-#include "dmfix_win_utf8.h"
+#include "dmfix_win.h"
 
 Idmfilesearch* g_searchEngine = nullptr;
 
@@ -22,6 +22,9 @@ struct CmdArgs {
     bool quickSearch = false;
     bool clearIndex = false;
     bool showVersion = false;
+    std::vector<std::string> includeExtensions;
+    std::vector<std::string> excludeExtensions;
+    std::vector<std::string> excludeDirectories;
 };
 
 void ShowVersion() {
@@ -56,7 +59,7 @@ void ShowHelp() {
     
     std::cout << "\n过滤选项:" << std::endl;
     std::cout << "  --ext EXT               仅包含指定扩展名 (如: --ext .txt)" << std::endl;
-    std::cout << "  --exclude-ext EXT       排除指定扩展名" << std::endl;
+    std::cout << "  --exclude-ext EXT       排除指定扩展名（多个扩展名用逗号分隔，如：cpp,cc,cxx）" << std::endl;
     std::cout << "  --exclude-dir DIR       排除指定目录" << std::endl;
     
     std::cout << "\n排序选项:" << std::endl;
@@ -174,10 +177,11 @@ bool ParseArguments(int argc, char* argv[], CmdArgs& args) {
         }
         else if (arg == "--ext") {
             if (i + 1 < argc) {
-                // 这里需要在创建引擎后添加过滤器
-                // 暂时存储在args中
-                std::cerr << "注意: 扩展名过滤将在引擎初始化后应用" << std::endl;
-                ++i;
+                std::string ext = argv[++i];
+                if (!ext.empty() && ext[0] == '.') {
+                    ext = ext.substr(1); // 移除点
+                }
+                args.includeExtensions.push_back(ext);
             } else {
                 std::cerr << "错误: --ext 需要扩展名参数" << std::endl;
                 return false;
@@ -185,8 +189,17 @@ bool ParseArguments(int argc, char* argv[], CmdArgs& args) {
         }
         else if (arg == "--exclude-ext") {
             if (i + 1 < argc) {
-                std::cerr << "注意: 排除扩展名过滤将在引擎初始化后应用" << std::endl;
-                ++i;
+                std::string extList = argv[++i];
+                std::istringstream iss(extList);
+                std::string ext;
+                while (std::getline(iss, ext, ',')) {
+                    if (!ext.empty()) {
+                        if (ext[0] == '.') {
+                            ext = ext.substr(1); // 移除点
+                        }
+                        args.excludeExtensions.push_back(ext);
+                    }
+                }
             } else {
                 std::cerr << "错误: --exclude-ext 需要扩展名参数" << std::endl;
                 return false;
@@ -194,8 +207,7 @@ bool ParseArguments(int argc, char* argv[], CmdArgs& args) {
         }
         else if (arg == "--exclude-dir") {
             if (i + 1 < argc) {
-                std::cerr << "注意: 排除目录过滤将在引擎初始化后应用" << std::endl;
-                ++i;
+                args.excludeDirectories.push_back(argv[++i]);
             } else {
                 std::cerr << "错误: --exclude-dir 需要目录参数" << std::endl;
                 return false;
@@ -247,6 +259,24 @@ void ExecuteCommands(const CmdArgs& args) {
     
     // 设置搜索选项
     g_searchEngine->SetSearchOptions(args.options);
+
+    // 清空过滤器
+    g_searchEngine->ClearFilters();
+
+    // 添加包含扩展名过滤器
+    for (const auto& ext : args.includeExtensions) {
+        g_searchEngine->AddIncludeExtension(ext);
+    }
+
+    // 添加排除扩展名过滤器
+    for (const auto& ext : args.excludeExtensions) {
+        g_searchEngine->AddExcludeExtension(ext);
+    }
+
+    // 添加排除目录过滤器
+    for (const auto& dir : args.excludeDirectories) {
+        g_searchEngine->AddExcludeDirectory(dir);
+    }
     
     // 清空索引
     if (args.clearIndex) {
