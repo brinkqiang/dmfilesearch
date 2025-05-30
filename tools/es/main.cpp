@@ -16,7 +16,7 @@ struct CmdArgs {
     std::string sortBy = "name";
     DMSearchOptions options;
     bool showHelp = false;
-    bool buildIndex = false;
+    bool buildIndex = true;
     bool saveIndex = false;
     bool loadIndex = false;
     bool quickSearch = false;
@@ -297,6 +297,10 @@ void ExecuteCommands(const CmdArgs& args) {
             g_searchEngine->BuildIndex(args.rootPaths[0]);
         } else if (args.rootPaths.size() > 1) {
             g_searchEngine->BuildIndexMultiple(args.rootPaths);
+        }
+        else
+        {
+            g_searchEngine->BuildIndex(".");
         }
     }
     
