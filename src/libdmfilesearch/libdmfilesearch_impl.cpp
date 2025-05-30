@@ -1,4 +1,4 @@
-// Copyright (c) 2018 brinkqiang (brink.qiang@gmail.com)
+﻿// Copyright (c) 2018 brinkqiang (brink.qiang@gmail.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,8 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "libdmfilesearch_impl.h"
-#include "dmformat.h"
 #include <iostream>
 #include <algorithm>
 #include <filesystem>
@@ -27,6 +25,11 @@
 #include <sstream>
 #include <chrono>
 #include <iomanip>
+
+#include "libdmfilesearch_impl.h"
+#include "dmformat.h"
+#include "dmstrtk.hpp"
+#include "dminicpp.h"
 
 namespace fs = std::filesystem;
 
@@ -57,8 +60,157 @@ bool DMAPI DmfilesearchImpl::Init() {
     m_excludeExtensions.clear();
     m_excludeDirectories.clear();
     m_searchOptions = DMSearchOptions();
+
+    if(!ReadConfig() && WriteConfig())
+    {
+        return ReadConfig();
+    }
+
     return true;
 }
+
+
+bool DMAPI DmfilesearchImpl::ReadConfig()
+{
+#ifdef _WIN32
+    const char* home = std::getenv("USERPROFILE");
+#else
+    const char* home = std::getenv("HOME");
+#endif
+
+    if (home) {
+        std::string configFile = std::string(home) + "/.es.conf";
+        return LoadConfig(configFile);
+    }
+    return false;
+}
+
+
+bool DMAPI DmfilesearchImpl::WriteConfig()
+{
+#ifdef _WIN32
+    const char* home = std::getenv("USERPROFILE");
+#else
+    const char* home = std::getenv("HOME");
+#endif
+
+    if (home) {
+        std::string configFile = std::string(home) +  PATH_DELIMITER + ".es.conf";
+        return SaveConfig(configFile);
+    }
+    return false;
+}
+
+bool DmfilesearchImpl::LoadConfig(const std::string& configFile) {
+    try {
+        std::string expandedPath = configFile;
+
+        // 检查文件是否存在
+        std::ifstream file(expandedPath);
+        if (!file.good()) {
+            std::cout << "配置文件不存在，使用默认配置: " << expandedPath << std::endl;
+            return false; // 使用默认配置
+        }
+        inih::INIReader reader(expandedPath);
+        if (reader.ParseError() != 0) {
+            std::cerr << "解析配置文件失败: " << expandedPath << std::endl;
+            return false;
+        }
+
+        // 读取搜索配置
+        m_config.search.caseSensitive = reader.Get<bool>("search", "case_sensitive", false);
+        m_config.search.maxResults = reader.Get<uint32_t>("search", "max_results", 1000);
+        m_config.search.includeHidden = reader.Get<bool>("search", "include_hidden", false);
+        m_config.search.filesOnly = reader.Get<bool>("search", "files_only", false);
+        m_config.search.dirsOnly = reader.Get<bool>("search", "dirs_only", false);
+        m_config.search.wholeWord = reader.Get<bool>("search", "whole_word", false);
+        m_config.search.useRegex = reader.Get<bool>("search", "use_regex", false);
+        m_config.search.searchInPath = reader.Get<bool>("search", "search_in_path", false);
+
+        // 读取过滤器配置
+        std::string excludeExts = reader.Get<std::string>("filters", "exclude_extensions", "");
+        std::string includeExts = reader.Get<std::string>("filters", "include_extensions", "");
+        std::string excludeDirs = reader.Get<std::string>("filters", "exclude_directories", "");
+
+        // 解析扩展名和目录
+        m_config.filters.excludeExtensions.clear();
+        if (!excludeExts.empty()) {
+            strtk::parse(excludeExts, ",", m_config.filters.excludeExtensions);
+        }
+
+        m_config.filters.includeExtensions.clear();
+        if (!includeExts.empty()) {
+            strtk::parse(includeExts, ",", m_config.filters.includeExtensions);
+        }
+
+        m_config.filters.excludeDirectories.clear();
+        if (!excludeDirs.empty()) {
+            strtk::parse(excludeDirs, ",", m_config.filters.excludeDirectories);
+        }
+
+        // 读取索引配置
+        m_config.index.autoSave = reader.Get<bool>("index", "auto_save", true);
+        m_config.index.indexFile = reader.Get<std::string>("index", "index_file", "~/.es_index.dat");
+        m_config.index.autoLoad = reader.Get<bool>("index", "auto_load", true);
+        m_config.index.rebuildInterval = reader.Get<uint32_t>("index", "rebuild_interval", 3600);
+
+        std::cout << "配置文件加载成功: " << expandedPath << std::endl;
+        return true;
+
+    }
+    catch (const std::exception& e) {
+        std::cerr << "加载配置文件时出错: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+bool DmfilesearchImpl::SaveConfig(const std::string& configFile) {
+    try {
+        std::string expandedPath = configFile;
+
+        // 创建INI写入器
+        std::ofstream ofs(expandedPath);
+        if (!ofs) {
+            std::cerr << "无法创建配置文件: " << expandedPath << std::endl;
+            return false;
+        }
+
+        // 写入搜索配置
+        ofs << "[search]\n";
+        ofs << "case_sensitive=" << (m_config.search.caseSensitive ? "true" : "false") << "\n";
+        ofs << "max_results=" << m_config.search.maxResults << "\n";
+        ofs << "include_hidden=" << (m_config.search.includeHidden ? "true" : "false") << "\n";
+        ofs << "files_only=" << (m_config.search.filesOnly ? "true" : "false") << "\n";
+        ofs << "dirs_only=" << (m_config.search.dirsOnly ? "true" : "false") << "\n";
+        ofs << "whole_word=" << (m_config.search.wholeWord ? "true" : "false") << "\n";
+        ofs << "use_regex=" << (m_config.search.useRegex ? "true" : "false") << "\n";
+        ofs << "search_in_path=" << (m_config.search.searchInPath ? "true" : "false") << "\n";
+        ofs << "\n";
+
+        // 写入过滤器配置
+        ofs << "[filters]\n";
+        ofs << "exclude_extensions=" << strtk::join(",", m_config.filters.excludeExtensions) << "\n";
+        ofs << "include_extensions=" << strtk::join(",", m_config.filters.includeExtensions) << "\n";
+        ofs << "exclude_directories=" << strtk::join(",", m_config.filters.excludeDirectories) << "\n";
+        ofs << "\n";
+
+        // 写入索引配置
+        ofs << "[index]\n";
+        ofs << "auto_save=" << (m_config.index.autoSave ? "true" : "false") << "\n";
+        ofs << "index_file=" << m_config.index.indexFile << "\n";
+        ofs << "auto_load=" << (m_config.index.autoLoad ? "true" : "false") << "\n";
+        ofs << "rebuild_interval=" << m_config.index.rebuildInterval << "\n";
+
+        std::cout << "配置文件保存成功: " << expandedPath << std::endl;
+        return true;
+
+    }
+    catch (const std::exception& e) {
+        std::cerr << "保存配置文件时出错: " << e.what() << std::endl;
+        return false;
+    }
+}
+
 
 void DMAPI DmfilesearchImpl::BuildIndex(const std::string& rootPath) {
     if (m_indexing.load()) {

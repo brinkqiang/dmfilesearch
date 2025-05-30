@@ -58,6 +58,36 @@ struct DMSearchOptions {
                        filesOnly(false), maxResults(1000) {}
 };
 
+struct DMConfigSearch {
+    bool caseSensitive = false;
+    uint32_t maxResults = 1000;
+    bool includeHidden = false;
+    bool filesOnly = false;
+    bool dirsOnly = false;
+    bool wholeWord = false;
+    bool useRegex = false;
+    bool searchInPath = false;
+};
+
+struct DMConfigFilters {
+    std::set<std::string> excludeExtensions;
+    std::set<std::string> includeExtensions;
+    std::set<std::string> excludeDirectories;
+};
+
+struct DMConfigIndex {
+    bool autoSave = true;
+    std::string indexFile = "~/.es_index.dat";
+    bool autoLoad = true;
+    uint32_t rebuildInterval = 3600; // 秒
+};
+
+struct DMConfigData {
+    DMConfigSearch search;
+    DMConfigFilters filters;
+    DMConfigIndex index;
+};
+
 class Idmfilesearch
 {
 public:
@@ -68,6 +98,12 @@ public:
     // 初始化搜索引擎
     virtual bool DMAPI Init() = 0;
     
+
+    // 读取配置
+    virtual bool DMAPI ReadConfig() = 0;
+    virtual bool DMAPI WriteConfig() = 0;
+    virtual bool DMAPI LoadConfig(const std::string& configFile) = 0;
+    virtual bool DMAPI SaveConfig(const std::string& configFile) = 0;
     // 建立文件索引
     virtual void DMAPI BuildIndex(const std::string& rootPath) = 0;
     virtual void DMAPI BuildIndexMultiple(const DMStringList& rootPaths) = 0;

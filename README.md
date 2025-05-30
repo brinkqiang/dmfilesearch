@@ -4,7 +4,7 @@ Copyright (c) 2013-2018 brinkqiang (brink.qiang@gmail.com)
 
 [![dmfilesearch](https://img.shields.io/badge/brinkqiang-dmfilesearch-blue.svg?style=flat-square)](https://github.com/brinkqiang/dmfilesearch)
 [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/brinkqiang/dmfilesearch/blob/master/LICENSE)
-[![blog](https://img.shields.io/badge/Author-Blog-7AD6FD.svg)](https://brinkqiang.github.io/)
+[![blog](https://img.shields.io/b badge/Author-Blog-7AD6FD.svg)](https://brinkqiang.github.io/)
 [![Open Source Love](https://badges.frapsoft.com/os/v3/open-source.png)](https://github.com/brinkqiang)
 [![GitHub stars](https://img.shields.io/github/stars/brinkqiang/dmfilesearch.svg?label=Stars)](https://github.com/brinkqiang/dmfilesearch) 
 [![GitHub forks](https://img.shields.io/github/forks/brinkqiang/dmfilesearch.svg?label=Fork)](https://github.com/brinkqiang/dmfilesearch)
@@ -33,6 +33,7 @@ Copyright (c) 2013-2018 brinkqiang (brink.qiang@gmail.com)
 - **索引持久化**: 支持索引的保存和加载
 - **跨平台**: 支持Windows和Linux平台
 - **命令行友好**: 丰富的命令行选项
+- **配置文件支持**: 支持通过配置文件设置默认选项
 
 ## 编译安装
 
@@ -231,19 +232,6 @@ build.bat
 3. **搜索技巧**: 
    - 使用具体的搜索模式减少结果数量
    - 合理使用正则表达式，避免过于复杂的模式
-
-## 待实现功能
-
-以下功能在当前版本中尚未完全实现或存在已知问题：
-
-- **命令行过滤选项未生效**:
-  - `--ext <EXT>` (仅包含指定扩展名)
-  - `--exclude-ext <EXT>` (排除指定扩展名)
-  - `--exclude-dir <DIR>` (排除指定目录)
-  这些选项在命令行中解析后，目前未能正确应用到搜索逻辑中。
-
-- **配置文件支持**:
-  - `~/.es.conf` 配置文件中定义的默认选项（如 `case_sensitive`, `max_results`, `exclude_extensions`, `exclude_directories` 等）目前未被程序读取和应用。
 
 ## 配置文件
 

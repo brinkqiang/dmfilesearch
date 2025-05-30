@@ -36,6 +36,12 @@ public:
     void DMAPI Test(void) override;
     
     bool DMAPI Init() override;
+
+    bool DMAPI ReadConfig() override;
+    bool DMAPI WriteConfig() override;
+    bool DMAPI LoadConfig(const std::string& configFile) override;
+    bool DMAPI SaveConfig(const std::string& configFile) override;
+
     void DMAPI BuildIndex(const std::string& rootPath) override;
     void DMAPI BuildIndexMultiple(const DMStringList& rootPaths) override;
     
@@ -68,7 +74,8 @@ private:
     std::unordered_set<std::string> m_excludeDirectories;
     DMSearchOptions m_searchOptions;
     std::atomic<bool> m_indexing{false};
-    
+    DMConfigData m_config;
+
     // 内部辅助函数
     void BuildIndexRecursive(const std::string& directory);
     bool ShouldIncludeFile(const std::string& filePath, const std::string& fileName) const;
