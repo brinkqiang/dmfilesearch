@@ -79,7 +79,7 @@ bool DMAPI DmfilesearchImpl::ReadConfig()
 #endif
 
     if (home) {
-        std::string configFile = std::string(home) + "/.es.conf";
+        std::string configFile = std::string(home) +  PATH_DELIMITER + ".es.conf";
         return LoadConfig(configFile);
     }
     return false;
